@@ -6,9 +6,14 @@ class SeatingService
   end
 
   def get_seating_arrangement(count)
+    @count = count
+    @aisle_pointer, @window_pointer, @middle_pointer = seat_type_pointers
+
     fillable_seats, remaining_seats, remaining_people = fill_stats(count)
+    fill_seating(fillable_seats) unless @seat_blocks.empty?
+
     {
-      seating: @seat_blocks.empty? ? [] : filled_seating(fillable_seats),
+      seating: @seat_blocks,
       remaining_seats: remaining_seats,
       remaining_people: remaining_people
     }
@@ -41,61 +46,52 @@ class SeatingService
     ]
   end
 
-  def filled_seating(count)
-    aisle_pointer, window_pointer, middle_pointer = seat_type_pointers
-
+  def fill_seating(_count)
     (0..(@max_row - 1)).each do |row_idx|
-      @seat_blocks.each_with_index do |block, block_idx|
-        next if row_idx >= block.size
-
-        (0..(block[0].size - 1)).each do |idx|
-          # middle seat in any blocks
-          if idx.positive? && idx < block[0].size - 1
-            next if middle_pointer > count
-
-            @seat_blocks[block_idx][row_idx][idx] = middle_pointer
-            middle_pointer += 1
-
-          # aisle seats in middle blocks
-          elsif block_idx.positive? && block_idx < @seat_blocks.size - 1
-            next if aisle_pointer > count
-
-            @seat_blocks[block_idx][row_idx][idx] = aisle_pointer
-            aisle_pointer += 1
-
-          # left edge block has window first and aisle last
-          elsif block_idx.zero?
-            if idx.zero?
-              next if window_pointer > count
-
-              @seat_blocks[block_idx][row_idx][idx] = window_pointer
-              window_pointer += 1
-            else
-              next if aisle_pointer > count
-
-              @seat_blocks[block_idx][row_idx][idx] = aisle_pointer
-              aisle_pointer += 1
-            end
-
-          # right edge block has aisle at first index
-          elsif idx.zero?
-            next if aisle_pointer > count
-
-            @seat_blocks[block_idx][row_idx][idx] = aisle_pointer
-            aisle_pointer += 1
-
-          # right edge block has window at last idx
-          else
-            next if window_pointer > count
-
-            @seat_blocks[block_idx][row_idx][idx] = window_pointer
-            window_pointer += 1
-          end
-        end
+      (0..(@seat_blocks.size - 1)).each do |block_idx|
+        fill_row_across_blocks(row_idx, block_idx) if row_idx < @seat_blocks[block_idx].size
       end
     end
+  end
 
-    @seat_blocks
+  def fill_row_across_blocks(row_idx, block_idx)
+    (0..(@seat_blocks[block_idx][0].size - 1)).each do |column_idx|
+      case seat_type(block_idx, column_idx)
+      when 'aisle'
+        fill_aisle_seat(row_idx, block_idx, column_idx) if @aisle_pointer <= @count
+      when 'window'
+        fill_window_seat(row_idx, block_idx, column_idx) if @window_pointer <= @count
+      when 'middle'
+        fill_middle_seat(row_idx, block_idx, column_idx) if @middle_pointer <= @count
+      end
+    end
+  end
+
+  def fill_aisle_seat(row_idx, block_idx, column_idx)
+    @seat_blocks[block_idx][row_idx][column_idx] = @aisle_pointer
+    @aisle_pointer += 1
+  end
+
+  def fill_window_seat(row_idx, block_idx, column_idx)
+    @seat_blocks[block_idx][row_idx][column_idx] = @window_pointer
+    @window_pointer += 1
+  end
+
+  def fill_middle_seat(row_idx, block_idx, column_idx)
+    @seat_blocks[block_idx][row_idx][column_idx] = @middle_pointer
+    @middle_pointer += 1
+  end
+
+  def seat_type(block_idx, column_idx)
+    if column_idx.positive? && column_idx < @seat_blocks[block_idx][0].size - 1
+      'middle'
+    elsif block_idx.zero? && column_idx.zero?
+      'window'
+    elsif block_idx == @seat_blocks.size - 1 && column_idx == @seat_blocks[block_idx][0].size - 1
+      'window'
+    else
+      'aisle'
+    end
   end
 
   def seat_type_pointers
