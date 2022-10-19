@@ -6,16 +6,20 @@ import Form from "./Form";
 import Seats from "./Seats";
 
 const Home = () => {
+    const [isLoading, setIsLoading] = useState(false);
     const [seatingData, setSeatingData] = useState();
 
     const handleSubmit = async (values, { setSubmitting }) => {
         setSubmitting(true);
+        setIsLoading(true);
         try {
             const data = await seatingApi.generateSeating(values);
             setSeatingData(data);
+            await new Promise((resolve) => setTimeout(resolve, 2000));
         } catch (error) {
             console.error(error);
         } finally {
+            setIsLoading(false);
             setSubmitting(false);
         }
     };
@@ -25,8 +29,8 @@ const Home = () => {
             <section className="flex-auto overflow-auto">
                 <Form onSubmit={handleSubmit} />
             </section>
-            <section className="w-2/3 flex-auto bg-gray-200 overflow-auto">
-                <Seats seating={seating} />
+            <section className="w-2/3 flex-auto flex bg-gray-200 overflow-auto">
+                <Seats data={seatingData} isLoading={isLoading} />
             </section>
         </div>
     );

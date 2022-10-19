@@ -1,5 +1,5 @@
-import { Field } from "formik";
 import React from "react";
+import { Field } from "formik";
 
 const Input = ({ name, type, label }) => (
     <Field name={name}>
