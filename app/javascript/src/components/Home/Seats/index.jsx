@@ -13,21 +13,28 @@ const Seats = ({ data, isLoading }) => {
     }
 
     return (
-        <div className="w-full h-full flex justify-center items-center overflow-auto relative">
+        <div className="flex w-full h-full overflow-auto">
             <Info data={data} />
-
-            <div className="flex items-start space-x-8 mt-16 w-full h-full p-5">
-                {data.seating?.map((block, blockIndex) => (
-                    <div key={blockIndex} className="flex flex-col space-y-2">
-                        {block?.map((row, rowIndex) => (
-                            <div key={rowIndex} className="flex space-x-2">
-                                {row?.map((cell, cellIndex) => (
-                                    <Cell key={cellIndex} passenger={cell} />
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                ))}
+            <div className="min-h-full mx-auto my-auto flex flex-col justify-center">
+                <div className="min-h-full flex items-start space-x-8 mx-auto my-auto pt-16 p-5">
+                    {data.seating?.map((block, blockIndex) => (
+                        <div
+                            key={blockIndex}
+                            className="flex flex-col space-y-2"
+                        >
+                            {block?.map((row, rowIndex) => (
+                                <div key={rowIndex} className="flex space-x-2">
+                                    {row?.map((cell, cellIndex) => (
+                                        <Cell
+                                            key={cellIndex}
+                                            passenger={cell}
+                                        />
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
