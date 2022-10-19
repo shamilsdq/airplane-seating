@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Form from "./Form";
+import Seats from "./Seats";
 
 const Home = () => {
     const [seating, setSeating] = useState();
@@ -10,7 +11,7 @@ const Home = () => {
 
     return (
         <div className="h-screen w-screen flex">
-            <section className="w-1/3 flex-auto">
+            <section className="w-1/3 flex-auto overflow-auto">
                 <Form onSubmit={handleSubmit} />
             </section>
             <section className="w-2/3 flex-auto bg-gray-200 overflow-auto">
