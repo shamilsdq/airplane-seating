@@ -1,17 +1,28 @@
 import React, { useState } from "react";
+
+import seatingApi from "../../apis/seating";
+
 import Form from "./Form";
 import Seats from "./Seats";
 
 const Home = () => {
-    const [seating, setSeating] = useState();
+    const [seatingData, setSeatingData] = useState();
 
-    const handleSubmit = () => {
-        setSeating([]);
+    const handleSubmit = async (values, { setSubmitting }) => {
+        setSubmitting(true);
+        try {
+            const data = await seatingApi.generateSeating(values);
+            setSeatingData(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
         <div className="h-screen w-screen flex">
-            <section className="w-1/3 flex-auto overflow-auto">
+            <section className="flex-auto overflow-auto">
                 <Form onSubmit={handleSubmit} />
             </section>
             <section className="w-2/3 flex-auto bg-gray-200 overflow-auto">

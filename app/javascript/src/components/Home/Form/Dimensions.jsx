@@ -14,7 +14,10 @@ const Dimensions = () => {
                 <div className="flex flex-col border rounded">
                     <h4 className="border-b p-5 font-semibold">SEAT BLOCKS</h4>
                     {values.dimensions.map((_, index) => (
-                        <div className="flex gap-5 items-end border-b p-3 pb-5">
+                        <div
+                            key={index}
+                            className="flex gap-5 items-end border-b p-3 pb-5"
+                        >
                             <Input
                                 name={`dimensions.${index}.rows`}
                                 type="number"
@@ -36,6 +39,7 @@ const Dimensions = () => {
                     ))}
 
                     <button
+                        type="button"
                         onClick={() => helper.push({ ...NEW_DIMENSION })}
                         className="m-5 bg-gray-200 py-2 px-6 rounded hover:bg-gray-400 border"
                     >
